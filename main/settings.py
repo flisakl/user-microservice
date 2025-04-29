@@ -1,6 +1,12 @@
 from pathlib import Path
 import os
 
+RSA_PRIVATE_KEY = os.environ.get('RSA_PRIVATE_KEY').replace("\\n", "\n")
+RSA_PUBLIC_KEY = os.environ.get('RSA_PUBLIC_KEY').replace("\\n", "\n")
+# Token expiration in hours
+TOKEN_TTL = 3
+
+AUTH_USER_MODEL = 'users.User'
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-5t8-(8y-gmqhh04h)uv1ighxig^sx#urbia-&*c+d-^^y+a4b@'
 DEBUG = True

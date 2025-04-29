@@ -22,7 +22,7 @@ from users.api import router
 from jwt.exceptions import ExpiredSignatureError
 
 api = NinjaAPI()
-api.add_router('/users', router)
+api.add_router('/', router)
 
 
 @api.exception_handler(ExpiredSignatureError)

@@ -7,10 +7,6 @@ import jwt
 from . import models
 
 
-class ExpiredToken(Exception):
-    """JWT Token is no longer valid"""
-
-
 def generate_jwt(user: models.User) -> str:
     today = timezone.datetime.now()
     payload = {
@@ -23,8 +19,13 @@ def generate_jwt(user: models.User) -> str:
     return jwt.encode(payload, settings.RSA_PRIVATE_KEY, algorithm="RS256")
 
 
-def decode_jwt(token: str) -> dict:
-    return jwt.decode(token, settings.RSA_PUBLIC_KEY, algorithms=["RS256"])
+def decode_jwt(token: str, check_expiration: bool = True) -> dict:
+    return jwt.decode(
+        token, settings.RSA_PUBLIC_KEY, algorithms=["RS256"],
+        options={
+            'verify_exp': check_expiration,
+        }
+    )
 
 
 class AuthBearer(HttpBearer):

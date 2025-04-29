@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from .auth import AuthBearer, generate_jwt
+from .auth import AuthBearer, generate_jwt, decode_jwt
+import jwt
 
 from . import models, schemas
 
@@ -9,7 +10,7 @@ from . import models, schemas
 router = Router()
 
 
-@router.post("/register", response={201: schemas.LoginSchemaOut})
+@router.post("/register", response={201: schemas.TokenSchema})
 def register(request, data: schemas.RegisterSchema):
     user = models.User.objects.create_user(
         username=data.username,
@@ -22,7 +23,7 @@ def register(request, data: schemas.RegisterSchema):
     return {"token": token}
 
 
-@router.post("/login", response={200: schemas.LoginSchemaOut, 401: dict})
+@router.post("/login", response={200: schemas.TokenSchema, 401: dict})
 def login(request, data: schemas.LoginSchemaIn):
     user = authenticate(username=data.username, password=data.password)
     if not user:
@@ -34,17 +35,13 @@ def login(request, data: schemas.LoginSchemaIn):
     return {"token": token}
 
 
-@router.get(
+@router.post(
     "/regenerate-token",
-    response=schemas.LoginSchemaOut,
-    auth=AuthBearer()
+    response=schemas.TokenSchema,
 )
-def regenerate_token(request):
-    try:
-        payload = request.auth
-        user = models.User.objects.get(id=payload["user_id"])
-    except Exception:
-        return 401, {"detail": "Invalid token"}
+def regenerate_token(request, data: schemas.TokenSchema):
+    payload = decode_jwt(data.token, False)
+    user = models.User.objects.get(id=payload["user_id"])
 
     token = generate_jwt(user)
     user.jwt_token = token

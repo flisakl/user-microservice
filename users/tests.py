@@ -57,10 +57,9 @@ class UserAPITests(TestCase):
         self.assertIn("detail", response.json())
 
     def test_user_can_regenerate_token(self):
-        token = self.generate_token(self.user)
-        response = client.get("/regenerate-token", headers={
-            "Authorization": f"Bearer {token}"
-        })
+        offset = datetime.timedelta(hours=-10)
+        token = self.generate_token(self.user, offset)
+        response = client.post("/regenerate-token", json={"token": token})
         self.assertEqual(response.status_code, 200)
         self.assertIn("token", response.json())
         self.assertNotEqual(response.json()["token"], token)

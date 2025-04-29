@@ -24,7 +24,7 @@ class LoginSchemaIn(Schema):
     password: str
 
 
-class LoginSchemaOut(Schema):
+class TokenSchema(Schema):
     token: str
 
 

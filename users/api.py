@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from .auth import AuthBearer, generate_jwt, decode_jwt
+from .auth import generate_jwt, decode_jwt
 
 from . import models, schemas
 
@@ -51,7 +51,6 @@ def regenerate_token(request, data: schemas.TokenSchema):
 @router.get(
     "/{int:user_id}",
     response=schemas.UserSchema,
-    auth=AuthBearer()
 )
 def get_user(request, user_id: int):
     user = get_object_or_404(models.User, pk=user_id)

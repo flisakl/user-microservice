@@ -2,7 +2,6 @@ from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from .auth import AuthBearer, generate_jwt, decode_jwt
-import jwt
 
 from . import models, schemas
 
@@ -41,7 +40,7 @@ def login(request, data: schemas.LoginSchemaIn):
 )
 def regenerate_token(request, data: schemas.TokenSchema):
     payload = decode_jwt(data.token, False)
-    user = models.User.objects.get(id=payload["user_id"])
+    user = models.User.objects.get(id=payload["id"])
 
     token = generate_jwt(user)
     user.jwt_token = token

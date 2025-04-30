@@ -21,7 +21,7 @@ class UserAPITests(TestCase):
     def generate_token(self, user, iat_delta: datetime.timedelta = None):
         now = timezone.now()
         payload = {
-            "user_id": user.id,
+            "id": user.pk,
             "username": user.username,
             "is_instructor": user.is_instructor,
             "exp": now + datetime.timedelta(hours=2),

@@ -16,6 +16,8 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=150, unique=True)
     is_instructor = models.BooleanField(default=False)
     jwt_token = models.TextField(blank=True, null=True)
+    first_name = models.CharField(max_length=30, null=True, blank=True)
+    last_name = models.CharField(max_length=50, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
 

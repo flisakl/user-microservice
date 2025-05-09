@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
-from ninja import Router
-from .auth import generate_jwt, decode_jwt
+from ninja import Router, Query
+from .auth import generate_jwt, decode_jwt, AuthBearer
 
 from . import models, schemas
 
@@ -17,6 +17,8 @@ def register(request, data: schemas.RegisterSchema):
         is_instructor=data.is_instructor
     )
     token = generate_jwt(user)
+    user.first_name = data.first_name
+    user.last_name = data.last_name
     user.jwt_token = token
     user.save()
     return {"token": token}
@@ -55,3 +57,29 @@ def regenerate_token(request, data: schemas.TokenSchema):
 def get_user(request, user_id: int):
     user = get_object_or_404(models.User, pk=user_id)
     return user
+
+
+@router.get("", response=list[schemas.UserSchema])
+def get_users(request, filters: schemas.UserFilterSchema = Query(...)):
+    qs = models.User.objects.all()
+    return filters.filter(qs)
+
+
+@router.patch("", response=schemas.UserSchema, auth=AuthBearer())
+def update_user(request, data: schemas.UserUpdateSchema):
+    usr = get_object_or_404(models.User, pk=request.auth['id'])
+
+    for attr, value in data.dict(exclude_unset=True).items():
+        setattr(usr, attr, value)
+    usr.save()
+
+    return usr
+
+
+@router.delete("", response={204: None}, auth=AuthBearer())
+def delete_user(request):
+    usr = get_object_or_404(models.User, pk=request.auth['id'])
+
+    usr.delete()
+
+    return 204, None
